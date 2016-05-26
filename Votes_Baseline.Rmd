@@ -1069,7 +1069,10 @@ glb_out_obs <- NULL # select from c(NULL : default to "new", "all", "new", "trn"
 if (glb_is_classification && glb_is_binomial) {
     # glbObsOut$vars[["Probability1"]] <- 
     #     "%<d-% glbObsNew[, mygetPredictIds(glb_rsp_var, glbMdlFinId)$prob]" 
-    glbObsOut$vars[[glb_rsp_var_raw]] <-
+    # glbObsOut$vars[[glb_rsp_var_raw]] <-
+    #     "%<d-% glb_map_rsp_var_to_raw(glbObsNew[,
+    #                                         mygetPredictIds(glb_rsp_var, glbMdlFinId)$value])"
+    glbObsOut$vars[["Predictions"]] <-
         "%<d-% glb_map_rsp_var_to_raw(glbObsNew[,
                                             mygetPredictIds(glb_rsp_var, glbMdlFinId)$value])"
 } else {
