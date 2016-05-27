@@ -1,6 +1,6 @@
 ---
 # Get YAML keywords from myYAML_ref.Rmd
-title: "Show of Hands:Votes: Party classification:: Votes_Gender"
+title: "<ProjectName>: <rsp_var_raw> <regression/classification>:: <scriptName>"
 author: "bdanalytics"
 
 # Choose one:
@@ -26,12 +26,12 @@ output:
 
 Data: 
 Source: 
-    Training:   "https://inclass.kaggle.com/c/can-we-predict-voting-outcomes/download/train2016.csv"  
-    New:        "https://inclass.kaggle.com/c/can-we-predict-voting-outcomes/download/test2016.csv"  
+    Training:   <obsTrnFileName>  
+    New:        <obsNewFileName>  
 Time period: 
 
 ```{r set_global_options_wd, echo=FALSE}
-setwd("~/Documents/Work/Courses/MIT/Analytics_Edge_15_071x/Assignments/Kaggle_SOH_Votes")
+setwd("~/Documents/Work/<ProjectPath>")
 # print(names(sys.frame(1)))
 # print(getSrcFilename(function (x) { x }))
 #print(sys.frame(1)$file)
@@ -139,7 +139,7 @@ require(stringr)
 #   url/name = "<PathPointer>"; if url specifies a zip file, name = "<filename>"; 
 #               or named collection of <PathPointer>s
 #   sep = choose from c(NULL, "\t")
-glbObsTrnFile <- list(url = "https://inclass.kaggle.com/c/can-we-predict-voting-outcomes/download/train2016.csv"
+glbObsTrnFile <- list(url = "<obsTrnFileName>" 
     # or list(url = c(NULL, <.inp1> = "<path1>", <.inp2> = "<path2>"))
     #, splitSpecs = list(method = "copy" # default when glbObsNewFile is NULL
     #                       select from c("copy", NULL ???, "condition", "sample", )
@@ -149,7 +149,7 @@ glbObsTrnFile <- list(url = "https://inclass.kaggle.com/c/can-we-predict-voting-
     #                      )
     )                   
  
-glbObsNewFile <- list(url = "https://inclass.kaggle.com/c/can-we-predict-voting-outcomes/download/test2016.csv") 
+glbObsNewFile <- NULL # default OR list(url = "<obsNewFileName>") 
 
 glbObsDropCondition <- NULL # : default
 #   enclose in single-quotes b/c condition might include double qoutes
@@ -167,28 +167,28 @@ glb_obs_repartition_train_condition <- NULL # : default
 glb_max_fitobs <- NULL # or any integer
 glbObsTrnPartitionSeed <- 123 # or any integer
                          
-glb_is_regression <- FALSE; glb_is_classification <- !glb_is_regression; 
-    glb_is_binomial <- TRUE # or TRUE or FALSE
+glb_is_regression <- TRUE; glb_is_classification <- !glb_is_regression; 
+    glb_is_binomial <- NULL # or TRUE or FALSE
 
-glb_rsp_var_raw <- "Party"
+glb_rsp_var_raw <- "<rsp_var_raw>"
 
 # for classification, the response variable has to be a factor
-glb_rsp_var <- "Party.fctr"
+glb_rsp_var <- glb_rsp_var_raw # or "<rsp_var_raw>.fctr"
 
 # if the response factor is based on numbers/logicals e.g (0/1 OR TRUE/FALSE vs. "A"/"B"), 
 #   or contains spaces (e.g. "Not in Labor Force")
 #   caret predict(..., type="prob") crashes
-glb_map_rsp_raw_to_var <- #NULL 
-function(raw) {
+glb_map_rsp_raw_to_var <- NULL 
+# function(raw) {
 #     return(raw ^ 0.5)
 #     return(log(raw))
 #     return(log(1 + raw))
 #     return(log10(raw)) 
 #     return(exp(-raw / 2))
-    ret_vals <- rep_len(NA, length(raw)); ret_vals[!is.na(raw)] <- ifelse(raw[!is.na(raw)] == "Republican", "R", "D"); return(relevel(as.factor(ret_vals), ref = "R"))
+#     ret_vals <- rep_len(NA, length(raw)); ret_vals[!is.na(raw)] <- ifelse(raw[!is.na(raw)] == 1, "Y", "N"); return(relevel(as.factor(ret_vals), ref="N"))
 #     as.factor(paste0("B", raw))
 #     as.factor(gsub(" ", "\\.", raw))
-    }
+#     }
 
 #if glb_rsp_var_raw is numeric:
 #print(summary(glbObsAll[, glb_rsp_var_raw]))
@@ -196,46 +196,38 @@ function(raw) {
 
 #if glb_rsp_var_raw is character:
 #print(table(glbObsAll[, glb_rsp_var_raw], useNA = "ifany"))
-# print(table(glb_map_rsp_raw_to_var(tst <- glbObsAll[, glb_rsp_var_raw]), useNA = "ifany"))
+#print(table(glb_map_rsp_raw_to_var(tst <- glbObsAll[, glb_rsp_var_raw]), useNA = "ifany")) 
 
-glb_map_rsp_var_to_raw <- #NULL 
-function(var) {
+glb_map_rsp_var_to_raw <- NULL 
+# function(var) {
 #     return(var ^ 2.0)
 #     return(exp(var))
 #     return(10 ^ var) 
 #     return(-log(var) * 2)
 #     as.numeric(var)
 #     levels(var)[as.numeric(var)]
-    sapply(levels(var)[as.numeric(var)], function(elm) 
-        if (is.na(elm)) return(elm) else
-        if (elm == 'R') return("Republican") else
-        if (elm == 'D') return("Democrat") else
-        stop("glb_map_rsp_var_to_raw: unexpected value: ", elm)
-        )  
+#     sapply(levels(var)[as.numeric(var)], function(elm) 
+#         if (is.na(elm)) return(elm) else
+#         if (elm == 'R') return("Republican") else
+#         if (elm == 'D') return("Democrat") else
+#         stop("glb_map_rsp_var_to_raw: unexpected value: ", elm)
+#         )  
 #     gsub("\\.", " ", levels(var)[as.numeric(var)])
 #     c("<=50K", " >50K")[as.numeric(var)]
 #     c(FALSE, TRUE)[as.numeric(var)]
-}
-# print(table(glb_map_rsp_var_to_raw(glb_map_rsp_raw_to_var(tst)), useNA = "ifany"))
+# }
+#print(table(glb_map_rsp_var_to_raw(glb_map_rsp_raw_to_var(tst)), useNA = "ifany"))
 
 if ((glb_rsp_var != glb_rsp_var_raw) && is.null(glb_map_rsp_raw_to_var))
     stop("glb_map_rsp_raw_to_var function expected")
 
 # List info gathered for various columns
 # <col_name>:   <description>; <notes>
-# USER_ID - an anonymous id unique to a given user
-# YOB - the year of birth of the user
-# Gender - the gender of the user, either Male or Female
-# Income - the household income of the user. Either not provided, or one of "under $25,000", "$25,001 - $50,000", "$50,000 - $74,999", "$75,000 - $100,000", "$100,001 - $150,000", or "over $150,000".
-# HouseholdStatus - the household status of the user. Either not provided, or one of "Domestic Partners (no kids)", "Domestic Partners (w/kids)", "Married (no kids)", "Married (w/kids)", "Single (no kids)", or "Single (w/kids)".
-# EducationalLevel - the education level of the user. Either not provided, or one of "Current K-12", "High School Diploma", "Current Undergraduate", "Associate's Degree", "Bachelor's Degree", "Master's Degree", or "Doctoral Degree".
-# Party - the political party for whom the user intends to vote for. Either "Democrat" or "Republican
-# Q124742, Q124122, . . . , Q96024 - 101 different questions that the users were asked on Show of Hands. If the user didn't answer the question, there is a blank. For information about the question text and possible answers, see the file Questions.pdf.
 
 # currently does not handle more than 1 column; consider concatenating multiple columns
 # If glbFeatsId == NULL, ".rownames <- as.numeric(row.names())" is the default
-glbFeatsId <- "USER_ID" # choose from c(NULL : default, "<id_feat>") 
-glbFeatsCategory <- "Gender.fctr" # choose from c(NULL : default, "<category_feat>")
+glbFeatsId <- NULL # choose from c(NULL : default, "<id_feat>") 
+glbFeatsCategory <- NULL # choose from c(NULL : default, "<category_feat>")
 
 # User-specified exclusions
 glbFeatsExclude <- c(NULL
@@ -245,43 +237,7 @@ glbFeatsExclude <- c(NULL
 #   Feats that are linear combinations (alias in glm)
 #   Feature-engineering phase -> start by excluding all features except id & category & 
 #       work each one in
-    , "USER_ID", "YOB", "Gender" # Done
-    ,"Income", "HouseholdStatus", "EducationLevel"
-    ,"Q124742","Q124122"
-    ,"Q123621","Q123464"
-    ,"Q122771","Q122770","Q122769","Q122120"
-    ,"Q121700","Q121699","Q121011"
-    ,"Q120978","Q120650","Q120472","Q120379","Q120194","Q120014","Q120012"
-    ,"Q119851","Q119650","Q119334"
-    ,"Q118892","Q118237","Q118233","Q118232","Q118117"
-    ,"Q117193","Q117186"
-    ,"Q116797","Q116881","Q116953","Q116601","Q116441","Q116448","Q116197"
-    ,"Q115602","Q115777","Q115610","Q115611","Q115899","Q115390","Q115195"
-    ,"Q114961","Q114748","Q114517","Q114386","Q114152"
-    ,"Q113992","Q113583","Q113584","Q113181"
-    ,"Q112478","Q112512","Q112270"
-    ,"Q111848","Q111580","Q111220"
-    ,"Q110740"
-    ,"Q109367","Q109244"
-    ,"Q108950","Q108855","Q108617","Q108856","Q108754","Q108342","Q108343"
-    ,"Q107869","Q107491"
-    ,"Q106993","Q106997","Q106272","Q106388","Q106389","Q106042"
-    ,"Q105840","Q105655"
-    ,"Q104996"
-    ,"Q103293"
-    ,"Q102906","Q102674","Q102687","Q102289","Q102089"
-    ,"Q101162","Q101163","Q101596"
-    ,"Q100689","Q100680","Q100562","Q100010"
-    ,"Q99982"
-    ,"Q99716"
-    ,"Q99581"
-    ,"Q99480"
-    ,"Q98869"
-    ,"Q98578"
-    ,"Q98197"
-    ,"Q98059","Q98078"
-    ,"Q96024"
-    ,".pos") 
+                    ) 
 if (glb_rsp_var_raw != glb_rsp_var)
     glbFeatsExclude <- union(glbFeatsExclude, glb_rsp_var_raw)                    
 
@@ -341,9 +297,9 @@ glbFeatsDerive <- list();
 glbFeatsDerive[[".pos"]] <- list(
     mapfn = function(.rnorm) { return(1:length(.rnorm)) }
     , args = c(".rnorm"))
-# glbFeatsDerive[[".pos.y"]] <- list(
-#     mapfn = function(.rnorm) { return(1:length(.rnorm)) }       
-#     , args = c(".rnorm"))    
+glbFeatsDerive[[".pos.y"]] <- list(
+    mapfn = function(.rnorm) { return(1:length(.rnorm)) }       
+    , args = c(".rnorm"))    
 
 # Add logs of numerics that are not distributed normally
 #   Derive & keep multiple transformations of the same feature, if normality is hard to achieve with just one transformation
@@ -371,39 +327,6 @@ glbFeatsDerive[[".pos"]] <- list(
 #         return(relevel(as.factor(ret_vals), ref = "NA"))
 #     }       
 #     , args = c("District"))    
-
-# YOB options:
-# 1. Missing data:
-# 1.1   0 -> Does not improve baseline
-# 1.2   Cut factors & "NA" is a level
-# 2. Data corrections: < 1928 & > 2000
-# 3. Scale YOB
-# 4. Add Age
-glbFeatsDerive[["YOB.Age.fctr"]] <- list(
-    mapfn = function(YOB) {
-        raw <- 2016 - YOB 
-        # raw[!is.na(raw) & raw >= 2010] <- NA
-        raw[!is.na(raw) & (raw <= 15)] <- NA
-        raw[!is.na(raw) & (raw >= 90)] <- NA        
-        retVal <- rep_len("NA", length(raw))
-        # breaks = c(1879, seq(1949, 1989, 10), 2049)
-        # cutVal <- cut(raw[!is.na(raw)], breaks = breaks, 
-        #               labels = as.character(breaks + 1)[1:(length(breaks) - 1)])
-        cutVal <- cut(raw[!is.na(raw)], breaks = c(15, 20, 25, 30, 35, 40, 50, 65, 90))
-        retVal[!is.na(raw)] <- levels(cutVal)[cutVal]
-        return(relevel(as.factor(retVal), ref = "NA"))
-    }
-    , args = c("YOB"))
-
-glbFeatsDerive[["Gender.fctr"]] <- list(
-    mapfn = function(Gender) {
-        raw <- Gender
-        raw[raw %in% ""] <- "N"
-        raw <- gsub("Male"  , "M", raw, fixed = TRUE)
-        raw <- gsub("Female", "F", raw, fixed = TRUE)        
-        return(relevel(as.factor(raw), ref = "N"))
-    }
-    , args = c("Gender"))
 
 # If imputation of missing data is not working ...
 # glbFeatsDerive[["FertilityRate.nonNA"]] <- list(
@@ -1101,14 +1024,11 @@ glbObsOut <- list(NULL
 glb_out_obs <- NULL # select from c(NULL : default to "new", "all", "new", "trn")
 
 if (glb_is_classification && glb_is_binomial) {
-    # glbObsOut$vars[["Probability1"]] <- 
-    #     "%<d-% glbObsNew[, mygetPredictIds(glb_rsp_var, glbMdlFinId)$prob]" 
-    # glbObsOut$vars[[glb_rsp_var_raw]] <-
-    #     "%<d-% glb_map_rsp_var_to_raw(glbObsNew[,
-    #                                         mygetPredictIds(glb_rsp_var, glbMdlFinId)$value])"
-    glbObsOut$vars[["Predictions"]] <-
-        "%<d-% glb_map_rsp_var_to_raw(glbObsNew[,
-                                            mygetPredictIds(glb_rsp_var, glbMdlFinId)$value])"
+    glbObsOut$vars[["Probability1"]] <- 
+        "%<d-% glbObsNew[, mygetPredictIds(glb_rsp_var, glbMdlFinId)$prob]" 
+#     glbObsOut$vars[[glb_rsp_var_raw]] <- 
+#         "%<d-% glb_map_rsp_var_to_raw(glbObsNew[, 
+#                                             mygetPredictIds(glb_rsp_var, glbMdlFinId)$value])"         
 } else {
 #     glbObsOut$vars[[glbFeatsId]] <- 
 #         "%<d-% as.integer(gsub('Test#', '', glbObsNew[, glbFeatsId]))"
@@ -1125,7 +1045,7 @@ glbOutStackFnames <- NULL #: default
     # c("ebayipads_txt_assoc1_out_bid1_stack.csv") # manual stack
     # c("ebayipads_finmdl_bid1_out_nnet_1.csv") # universal stack
 
-glbOut <- list(pfx = "Votes_Gender_")
+glbOut <- list(pfx = "<scriptName>_")
 # lclImageSampleSeed <- 129
 glbOutDataVizFname <- NULL # choose from c(NULL, "<projectId>_obsall.csv")
 
@@ -1161,7 +1081,7 @@ glbChunks[["last"]] <- NULL #"extract.features.end" #NULL #default: script will 
 #newImgObs <- glbObsNew[(glbObsNew$ImageId == "Test#0001"), ]; print(newImgObs[which.max(newImgObs$label.fctr.Final..rcv.glmnet.prob), ])
 #OOBImgObs <- glbObsOOB[(glbObsOOB$ImageId == "Train#0003"), ]; print(OOBImgObs[which.max(OOBImgObs$label.fctr.All.X..rcv.glmnet.prob), ])
 
-#load("Votes_Gender_extract.features.end.RData", verbose = TRUE)
+#load("<scriptName>_extract.features.end.RData", verbose = TRUE)
 #mygetImage(which(glbObsAll[, glbFeatsId] == "Train#0003"), names(glbFeatsImage)[1], plot = TRUE, featHighlight = c("left_eye_center_x", "left_eye_center_y"), ovrlHighlight = c(66, 35))
 
 # Depict process
@@ -3872,7 +3792,6 @@ if (all(is.na(glbObsNew[, glb_rsp_var]))) {
                                size = OOBGrd[, ".strata"],
                                #size = OOB_strata_size[!is.na(OOB_strata_size)],
                                #size = c(223, 355,  13, 198, 315,  12),
-                               #size = c(50, 50,  13, 50, 50,  12),                               
                                method = "srswor")
         # print(table(split_strata$Stratum))
         glbObsOOB <- getdata(tmp_trnobs_df, split_strata)[, names(glbObsTrn)]
