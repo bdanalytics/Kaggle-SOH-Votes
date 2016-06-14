@@ -1,6 +1,6 @@
 ---
 # Get YAML keywords from myYAML_ref.Rmd
-title: "Show of Hands:Votes: Party classification:: Q109244No_AllXpreProc_cnk02_rest"
+title: "<ProjectName>: <rsp_var_raw> <regression/classification>:: <scriptName>"
 author: "bdanalytics"
 
 # Choose one:
@@ -26,12 +26,12 @@ output:
 
 Data: 
 Source: 
-    Training:   "https://inclass.kaggle.com/c/can-we-predict-voting-outcomes/download/train2016.csv"  
-    New:        "https://inclass.kaggle.com/c/can-we-predict-voting-outcomes/download/test2016.csv"  
+    Training:   <obsTrnFileName>  
+    New:        <obsNewFileName>  
 Time period: 
 
 ```{r set_global_options_wd, echo=FALSE}
-setwd("~/Documents/Work/Courses/MIT/Analytics_Edge_15_071x/Assignments/Kaggle_SOH_Votes")
+setwd("~/Documents/Work/<ProjectPath>")
 # print(names(sys.frame(1)))
 # print(getSrcFilename(function (x) { x }))
 #print(sys.frame(1)$file)
@@ -141,7 +141,7 @@ require(stringr)
 #   url/name = "<PathPointer>"; if url specifies a zip file, name = "<filename>"; 
 #               or named collection of <PathPointer>s
 #   sep = choose from c(NULL, "\t")
-glbObsTrnFile <- list(url = "https://inclass.kaggle.com/c/can-we-predict-voting-outcomes/download/train2016.csv"
+glbObsTrnFile <- list(url = "<obsTrnFileName>" 
     # or list(url = c(NULL, <.inp1> = "<path1>", <.inp2> = "<path2>"))
     #, splitSpecs = list(method = "copy" # default when glbObsNewFile is NULL
     #                       select from c("copy", NULL ???, "condition", "sample", )
@@ -151,9 +151,9 @@ glbObsTrnFile <- list(url = "https://inclass.kaggle.com/c/can-we-predict-voting-
     #                      )
     )                   
  
-glbObsNewFile <- list(url = "https://inclass.kaggle.com/c/can-we-predict-voting-outcomes/download/test2016.csv") 
+glbObsNewFile <- NULL # default OR list(url = "<obsNewFileName>") 
 
-glbObsDropCondition <- #NULL # : default
+glbObsDropCondition <- NULL # : default
 #   enclose in single-quotes b/c condition might include double qoutes
 #       use | & ; NOT || &&    
 #   '<condition>' 
@@ -161,7 +161,7 @@ glbObsDropCondition <- #NULL # : default
     # 'is.na(glbObsAll[, glb_rsp_var_raw])'
     # '(is.na(glbObsAll[, glb_rsp_var_raw]) & grepl("Train", glbObsAll[, glbFeatsId]))'
     # 'is.na(strptime(glbObsAll[, "Date"], glbFeatsDateTime[["Date"]]["format"], tz = glbFeatsDateTime[["Date"]]["timezone"]))'
-'(is.na(glbObsAll[, "Q109244"]) | (glbObsAll[, "Q109244"] != "No"))'
+    # '(is.na(glbObsAll[, "Q109244"]) | (glbObsAll[, "Q109244"] != "No"))'
 #nrow(do.call("subset",list(glbObsAll, parse(text=paste0("!(", glbObsDropCondition, ")")))))
     
 glb_obs_repartition_train_condition <- NULL # : default
@@ -170,31 +170,29 @@ glb_obs_repartition_train_condition <- NULL # : default
 glb_max_fitobs <- NULL # or any integer
 glbObsTrnPartitionSeed <- 123 # or any integer
                          
-glb_is_regression <- FALSE; glb_is_classification <- !glb_is_regression; 
-    glb_is_binomial <- TRUE # or TRUE or FALSE
+glb_is_regression <- TRUE; glb_is_classification <- !glb_is_regression; 
+    glb_is_binomial <- NULL # or TRUE or FALSE
 
-glb_rsp_var_raw <- "Party"
+glb_rsp_var_raw <- "<rsp_var_raw>"
 
 # for classification, the response variable has to be a factor
-glb_rsp_var <- "Party.fctr"
+glb_rsp_var <- glb_rsp_var_raw # or "<rsp_var_raw>.fctr"
 
 # if the response factor is based on numbers/logicals e.g (0/1 OR TRUE/FALSE vs. "A"/"B"), 
 #   or contains spaces (e.g. "Not in Labor Force")
 #   caret predict(..., type="prob") crashes
-glb_map_rsp_raw_to_var <- #NULL 
-function(raw) {
+glb_map_rsp_raw_to_var <- NULL 
+# function(raw) {
 #     return(raw ^ 0.5)
 #     return(log(raw))
 #     return(log(1 + raw))
 #     return(log10(raw)) 
 #     return(exp(-raw / 2))
-#     
 # chk ref value against frequencies vs. alpha sort order
-    ret_vals <- rep_len(NA, length(raw)); ret_vals[!is.na(raw)] <- ifelse(raw[!is.na(raw)] == "Republican", "R", "D"); return(relevel(as.factor(ret_vals), ref = "D")) 
-    
+#     ret_vals <- rep_len(NA, length(raw)); ret_vals[!is.na(raw)] <- ifelse(raw[!is.na(raw)] == 1, "Y", "N"); return(relevel(as.factor(ret_vals), ref="N"))
 #     as.factor(paste0("B", raw))
 #     as.factor(gsub(" ", "\\.", raw))
-    }
+#     }
 
 #if glb_rsp_var_raw is numeric:
 #print(summary(glbObsAll[, glb_rsp_var_raw]))
@@ -202,47 +200,38 @@ function(raw) {
 
 #if glb_rsp_var_raw is character:
 #print(table(glbObsAll[, glb_rsp_var_raw], useNA = "ifany"))
-# print(table(glb_map_rsp_raw_to_var(tst <- glbObsAll[, glb_rsp_var_raw]), useNA = "ifany"))
+#print(table(glb_map_rsp_raw_to_var(tst <- glbObsAll[, glb_rsp_var_raw]), useNA = "ifany")) 
 
-glb_map_rsp_var_to_raw <- #NULL 
-function(var) {
+glb_map_rsp_var_to_raw <- NULL 
+# function(var) {
 #     return(var ^ 2.0)
 #     return(exp(var))
 #     return(10 ^ var) 
 #     return(-log(var) * 2)
 #     as.numeric(var)
 #     levels(var)[as.numeric(var)]
-    sapply(levels(var)[as.numeric(var)], function(elm) 
-        if (is.na(elm)) return(elm) else
-        if (elm == 'R') return("Republican") else
-        if (elm == 'D') return("Democrat") else
-        stop("glb_map_rsp_var_to_raw: unexpected value: ", elm)
-        )  
+#     sapply(levels(var)[as.numeric(var)], function(elm) 
+#         if (is.na(elm)) return(elm) else
+#         if (elm == 'R') return("Republican") else
+#         if (elm == 'D') return("Democrat") else
+#         stop("glb_map_rsp_var_to_raw: unexpected value: ", elm)
+#         )  
 #     gsub("\\.", " ", levels(var)[as.numeric(var)])
 #     c("<=50K", " >50K")[as.numeric(var)]
 #     c(FALSE, TRUE)[as.numeric(var)]
-}
-# print(table(glb_map_rsp_var_to_raw(glb_map_rsp_raw_to_var(tst)), useNA = "ifany"))
+# }
+#print(table(glb_map_rsp_var_to_raw(glb_map_rsp_raw_to_var(tst)), useNA = "ifany"))
 
 if ((glb_rsp_var != glb_rsp_var_raw) && is.null(glb_map_rsp_raw_to_var))
     stop("glb_map_rsp_raw_to_var function expected")
 
 # List info gathered for various columns
 # <col_name>:   <description>; <notes>
-# USER_ID - an anonymous id unique to a given user
-# YOB - the year of birth of the user
-# Gender - the gender of the user, either Male or Female
-# Income - the household income of the user. Either not provided, or one of "under $25,000", "$25,001 - $50,000", "$50,000 - $74,999", "$75,000 - $100,000", "$100,001 - $150,000", or "over $150,000".
-# HouseholdStatus - the household status of the user. Either not provided, or one of "Domestic Partners (no kids)", "Domestic Partners (w/kids)", "Married (no kids)", "Married (w/kids)", "Single (no kids)", or "Single (w/kids)".
-# EducationalLevel - the education level of the user. Either not provided, or one of "Current K-12", "High School Diploma", "Current Undergraduate", "Associate's Degree", "Bachelor's Degree", "Master's Degree", or "Doctoral Degree".
-# Party - the political party for whom the user intends to vote for. Either "Democrat" or "Republican
-# Q124742, Q124122, . . . , Q96024 - 101 different questions that the users were asked on Show of Hands. If the user didn't answer the question, there is a blank. For information about the question text and possible answers, see the file Questions.pdf.
 
 # currently does not handle more than 1 column; consider concatenating multiple columns
 # If glbFeatsId == NULL, ".rownames <- as.numeric(row.names())" is the default
-glbFeatsId <- "USER_ID" # choose from c(NULL : default, "<id_feat>") 
-glbFeatsCategory <- "Hhold.fctr" # choose from c(NULL : default, "<category_feat>")
-# glbFeatsCategory <- "Q109244.fctr" # choose from c(NULL : default, "<category_feat>") -> OOB performed worse than "Hhold.fctr"
+glbFeatsId <- NULL # choose from c(NULL : default, "<id_feat>") 
+glbFeatsCategory <- NULL # choose from c(NULL : default, "<category_feat>")
 
 # User-specified exclusions
 glbFeatsExclude <- c(NULL
@@ -252,48 +241,12 @@ glbFeatsExclude <- c(NULL
 #   Feats that are linear combinations (alias in glm)
 #   Feature-engineering phase -> start by excluding all features except id & category & 
 #       work each one in
-    , "USER_ID", "YOB", "Gender", "Income", "HouseholdStatus", "EducationLevel" 
-    ,"Q124742","Q124122" 
-    ,"Q123621","Q123464"
-    ,"Q122771","Q122770","Q122769","Q122120"
-    ,"Q121700","Q121699","Q121011"
-    ,"Q120978","Q120650","Q120472","Q120379","Q120194","Q120014","Q120012" 
-    ,"Q119851","Q119650","Q119334"
-    ,"Q118892","Q118237","Q118233","Q118232","Q118117"
-    ,"Q117193","Q117186"
-    ,"Q116797","Q116881","Q116953","Q116601","Q116441","Q116448","Q116197"
-    ,"Q115602","Q115777","Q115610","Q115611","Q115899","Q115390","Q115195"
-    ,"Q114961","Q114748","Q114517","Q114386","Q114152"
-    ,"Q113992","Q113583","Q113584","Q113181"
-    ,"Q112478","Q112512","Q112270"
-    ,"Q111848","Q111580","Q111220"
-    ,"Q110740"
-    ,"Q109367","Q109244"
-    ,"Q108950","Q108855","Q108617","Q108856","Q108754","Q108342","Q108343"
-    ,"Q107869","Q107491"
-    ,"Q106993","Q106997","Q106272","Q106388","Q106389","Q106042"
-    ,"Q105840","Q105655"
-    ,"Q104996"
-    ,"Q103293"
-    ,"Q102906","Q102674","Q102687","Q102289","Q102089"
-    ,"Q101162","Q101163","Q101596"
-    ,"Q100689","Q100680","Q100562","Q100010"
-    ,"Q99982"
-    ,"Q99716"
-    ,"Q99581"
-    ,"Q99480"
-    ,"Q98869"
-    ,"Q98578"
-    ,"Q98197"
-    ,"Q98059","Q98078"
-    ,"Q96024" # Done
-    ,".pos") 
+                    ) 
 if (glb_rsp_var_raw != glb_rsp_var)
     glbFeatsExclude <- union(glbFeatsExclude, glb_rsp_var_raw)                    
 
 glbFeatsInteractionOnly <- list()
 #glbFeatsInteractionOnly[["<child_feat>"]] <- "<parent_feat>"
-glbFeatsInteractionOnly[["YOB.Age.dff"]] <- "YOB.Age.fctr"
 
 glbFeatsDrop <- c(NULL
                 # , "<feat1>", "<feat2>"
@@ -348,9 +301,9 @@ glbFeatsDerive <- list();
 glbFeatsDerive[[".pos"]] <- list(
     mapfn = function(raw1) { return(1:length(raw1)) }
     , args = c(".rnorm"))
-# glbFeatsDerive[[".pos.y"]] <- list(
-#     mapfn = function(raw1) { return(1:length(raw1)) }       
-#     , args = c(".rnorm"))    
+glbFeatsDerive[[".pos.y"]] <- list(
+    mapfn = function(raw1) { return(1:length(raw1)) }       
+    , args = c(".rnorm"))    
 
 # Add logs of numerics that are not distributed normally
 #   Derive & keep multiple transformations of the same feature, if normality is hard to achieve with just one transformation
@@ -377,168 +330,21 @@ glbFeatsDerive[[".pos"]] <- list(
 #                                         ifelse(elm < 20, "10-19", "20+")));
 #         return(relevel(as.factor(ret_vals), ref = "NA"))
 #     }       
+#     mapfn = function(raw1) { raw <- 2016 - raw1; 
+#         # raw[!is.na(raw) & raw >= 2010] <- NA
+#         raw[!is.na(raw) & (raw <= 15)] <- NA
+#         raw[!is.na(raw) & (raw >= 90)] <- NA        
+#         retVal <- rep_len("NA", length(raw))
+#         # breaks = c(1879, seq(1949, 1989, 10), 2049)
+#         # cutVal <- cut(raw[!is.na(raw)], breaks = breaks, 
+#         #               labels = as.character(breaks + 1)[1:(length(breaks) - 1)])
+#         cutVal <- cut(raw[!is.na(raw)], breaks = c(15, 20, 25, 30, 35, 40, 50, 65, 90))
+#         retVal[!is.na(raw)] <- levels(cutVal)[cutVal]
+#         return(factor(retVal, levels = c("NA"
+#                 ,"(15,20]","(20,25]","(25,30]","(30,35]","(35,40]","(40,50]","(50,65]","(65,90]"),
+#                         ordered = TRUE))
+#     }       
 #     , args = c("District"))    
-
-# YOB options:
-# 1. Missing data:
-# 1.1   0 -> Does not improve baseline
-# 1.2   Cut factors & "NA" is a level
-# 2. Data corrections: < 1928 & > 2000
-# 3. Scale YOB
-# 4. Add Age
-# YOB.Age.fctr needs to be synced with YOB.Age.dff; Create a separate sub-function ???
-glbFeatsDerive[["YOB.Age.fctr"]] <- list(
-    mapfn = function(raw1) {
-        raw <- 2016 - raw1 
-        # raw[!is.na(raw) & raw >= 2010] <- NA
-        raw[!is.na(raw) & (raw <= 15)] <- NA
-        raw[!is.na(raw) & (raw >= 90)] <- NA        
-        retVal <- rep_len("NA", length(raw))
-        # breaks = c(1879, seq(1949, 1989, 10), 2049)
-        # cutVal <- cut(raw[!is.na(raw)], breaks = breaks, 
-        #               labels = as.character(breaks + 1)[1:(length(breaks) - 1)])
-        cutVal <- cut(raw[!is.na(raw)], breaks = c(15, 20, 25, 30, 35, 40, 50, 65, 90))
-        retVal[!is.na(raw)] <- levels(cutVal)[cutVal]
-        return(factor(retVal, levels = c("NA"
-                ,"(15,20]","(20,25]","(25,30]","(30,35]","(35,40]","(40,50]","(50,65]","(65,90]"),
-                        ordered = TRUE))
-    }
-    , args = c("YOB"))
-
-# YOB.Age.fctr needs to be synced with YOB.Age.dff; Create a separate sub-function ???
-glbFeatsDerive[["YOB.Age.dff"]] <- list(
-    mapfn = function(raw1) {
-        raw <- 2016 - raw1 
-        raw[!is.na(raw) & (raw <= 15)] <- NA
-        raw[!is.na(raw) & (raw >= 90)] <- NA        
-        breaks <- c(15, 20, 25, 30, 35, 40, 50, 65, 90)
-
-        # retVal <- rep_len(0, length(raw))
-        stopifnot(sum(!is.na(raw) && (raw <= 15)) == 0)
-        stopifnot(sum(!is.na(raw) && (raw >= 90)) == 0) 
-        # msk <- !is.na(raw) && (raw > 15) && (raw <= 20); if (sum(msk > 0)) retVal[msk] <- raw[msk] - 15
-        # msk <- !is.na(raw) && (raw > 20) && (raw <= 25); if (sum(msk > 0)) retVal[msk] <- raw[msk] - 20
-        # msk <- !is.na(raw) && (raw > 25) && (raw <= 30); if (sum(msk > 0)) retVal[msk] <- raw[msk] - 25
-        # msk <- !is.na(raw) && (raw > 30) && (raw <= 35); if (sum(msk > 0)) retVal[msk] <- raw[msk] - 30
-        # msk <- !is.na(raw) && (raw > 35) && (raw <= 40); if (sum(msk > 0)) retVal[msk] <- raw[msk] - 35
-        # msk <- !is.na(raw) && (raw > 40) && (raw <= 50); if (sum(msk > 0)) retVal[msk] <- raw[msk] - 40
-        # msk <- !is.na(raw) && (raw > 50) && (raw <= 65); if (sum(msk > 0)) retVal[msk] <- raw[msk] - 50
-        # msk <- !is.na(raw) && (raw > 65) && (raw <= 90); if (sum(msk > 0)) retVal[msk] <- raw[msk] - 65
-
-        breaks <- c(15, 20, 25, 30, 35, 40, 50, 65, 90)        
-        retVal <- sapply(raw, function(age) {
-            if (is.na(age)) return(0) else
-            if ((age > 15) && (age <= 20)) return(age - 15) else
-            if ((age > 20) && (age <= 25)) return(age - 20) else
-            if ((age > 25) && (age <= 30)) return(age - 25) else
-            if ((age > 30) && (age <= 35)) return(age - 30) else
-            if ((age > 35) && (age <= 40)) return(age - 35) else
-            if ((age > 40) && (age <= 50)) return(age - 40) else
-            if ((age > 50) && (age <= 65)) return(age - 50) else
-            if ((age > 65) && (age <= 90)) return(age - 65)
-        })
-        
-        return(retVal)
-    }
-    , args = c("YOB"))
-
-glbFeatsDerive[["Gender.fctr"]] <- list(
-    mapfn = function(raw1) {
-        raw <- raw1
-        raw[raw %in% ""] <- "N"
-        raw <- gsub("Male"  , "M", raw, fixed = TRUE)
-        raw <- gsub("Female", "F", raw, fixed = TRUE)        
-        return(relevel(as.factor(raw), ref = "N"))
-    }
-    , args = c("Gender"))
-
-glbFeatsDerive[["Income.fctr"]] <- list(
-    mapfn = function(raw1) { raw <- raw1;
-        raw[raw %in% ""] <- "N"
-        raw <- gsub("under $25,000"      , "<25K"    , raw, fixed = TRUE)
-        raw <- gsub("$25,001 - $50,000"  , "25-50K"  , raw, fixed = TRUE)
-        raw <- gsub("$50,000 - $74,999"  , "50-75K"  , raw, fixed = TRUE)
-        raw <- gsub("$75,000 - $100,000" , "75-100K" , raw, fixed = TRUE)        
-        raw <- gsub("$100,001 - $150,000", "100-150K", raw, fixed = TRUE)
-        raw <- gsub("over $150,000"      , ">150K"   , raw, fixed = TRUE)        
-        return(factor(raw, levels = c("N","<25K","25-50K","50-75K","75-100K","100-150K",">150K"),
-                      ordered = TRUE))
-    }
-    , args = c("Income"))
-
-glbFeatsDerive[["Hhold.fctr"]] <- list(
-    mapfn = function(raw1) { raw <- raw1;
-        raw[raw %in% ""] <- "N"
-        raw <- gsub("Domestic Partners (no kids)", "PKn", raw, fixed = TRUE)
-        raw <- gsub("Domestic Partners (w/kids)" , "PKy", raw, fixed = TRUE)        
-        raw <- gsub("Married (no kids)"          , "MKn", raw, fixed = TRUE)
-        raw <- gsub("Married (w/kids)"           , "MKy", raw, fixed = TRUE)        
-        raw <- gsub("Single (no kids)"           , "SKn", raw, fixed = TRUE)
-        raw <- gsub("Single (w/kids)"            , "SKy", raw, fixed = TRUE)        
-        return(relevel(as.factor(raw), ref = "N"))
-    }
-    , args = c("HouseholdStatus"))
-
-glbFeatsDerive[["Edn.fctr"]] <- list(
-    mapfn = function(raw1) { raw <- raw1;
-        raw[raw %in% ""] <- "N"
-        raw <- gsub("Current K-12"         , "K12", raw, fixed = TRUE)
-        raw <- gsub("High School Diploma"  , "HSD", raw, fixed = TRUE)        
-        raw <- gsub("Current Undergraduate", "CCg", raw, fixed = TRUE)
-        raw <- gsub("Associate's Degree"   , "Ast", raw, fixed = TRUE)
-        raw <- gsub("Bachelor's Degree"    , "Bcr", raw, fixed = TRUE)        
-        raw <- gsub("Master's Degree"      , "Msr", raw, fixed = TRUE)
-        raw <- gsub("Doctoral Degree"      , "PhD", raw, fixed = TRUE)        
-        return(factor(raw, levels = c("N","K12","HSD","CCg","Ast","Bcr","Msr","PhD"),
-                      ordered = TRUE))
-    }
-    , args = c("EducationLevel"))
-
-# for (qsn in c("Q124742","Q124122"))
-# for (qsn in grep("Q12(.{4})(?!\\.fctr)", names(glbObsTrn), value = TRUE, perl = TRUE))
-for (qsn in grep("Q", glbFeatsExclude, fixed = TRUE, value = TRUE))    
-    glbFeatsDerive[[paste0(qsn, ".fctr")]] <- list(
-        mapfn = function(raw1) {
-            raw1[raw1 %in% ""] <- "NA"
-            rawVal <- unique(raw1)
-            
-            if (length(setdiff(rawVal, (expVal <- c("NA", "No", "Ys")))) == 0) {
-                raw1 <- gsub("Yes", "Ys", raw1, fixed = TRUE)
-                if (length(setdiff(rawVal, expVal)) > 0)
-                    stop(qsn, " vals: ", paste0(rawVal, collapse = "|"), 
-                         " does not match expectation: ", paste0(expVal, collapse = "|"))
-            } else
-            if (length(setdiff(rawVal, (expVal <- c("NA", "Me", "Circumstances")))) == 0) {
-                raw1 <- gsub("Circumstances", "Cs", raw1, fixed = TRUE)
-                if (length(setdiff(rawVal, expVal)) > 0)
-                    stop(qsn, " vals: ", paste0(rawVal, collapse = "|"), 
-                         " does not match expectation: ", paste0(expVal, collapse = "|"))
-            } else
-            if (length(setdiff(rawVal, (expVal <- c("NA", "Grrr people", "Yay people!")))) == 0) {
-                raw1 <- gsub("Grrr people", "Gr", raw1, fixed = TRUE)
-                raw1 <- gsub("Yay people!", "Yy", raw1, fixed = TRUE)                
-                if (length(setdiff(rawVal, expVal)) > 0)
-                    stop(qsn, " vals: ", paste0(rawVal, collapse = "|"), 
-                         " does not match expectation: ", paste0(expVal, collapse = "|"))
-            } else
-            if (length(setdiff(rawVal, (expVal <- c("NA", "Idealist", "Pragmatist")))) == 0) {
-                raw1 <- gsub("Idealist"  , "Id", raw1, fixed = TRUE)
-                raw1 <- gsub("Pragmatist", "Pr", raw1, fixed = TRUE)                
-                if (length(setdiff(rawVal, expVal)) > 0)
-                    stop(qsn, " vals: ", paste0(rawVal, collapse = "|"), 
-                         " does not match expectation: ", paste0(expVal, collapse = "|"))
-            } else
-            if (length(setdiff(rawVal, (expVal <- c("NA", "Private", "Public")))) == 0) {
-                raw1 <- gsub("Private", "Pt", raw1, fixed = TRUE)
-                raw1 <- gsub("Public" , "Pc", raw1, fixed = TRUE)                
-                if (length(setdiff(rawVal, expVal)) > 0)
-                    stop(qsn, " vals: ", paste0(rawVal, collapse = "|"), 
-                         " does not match expectation: ", paste0(expVal, collapse = "|"))
-            }
-            
-            return(relevel(as.factor(raw1), ref = "NA"))
-        }
-        , args = c(qsn))
 
 # If imputation of missing data is not working ...
 # glbFeatsDerive[["FertilityRate.nonNA"]] <- list(
@@ -550,6 +356,30 @@ for (qsn in grep("Q", glbFeatsExclude, fixed = TRUE, value = TRUE))
 #         return(retVal)
 #     }
 #     , args = c("FertilityRate", "Region"))
+    
+# for (qsn in grep("Q12", glbFeatsExclude, fixed = TRUE, value = TRUE))    
+#     glbFeatsDerive[[paste0(qsn, ".fctr")]] <- list(
+#         mapfn = function(raw1) {
+#             raw1[raw1 %in% ""] <- "NA"
+#             rawVal <- unique(raw1)
+#             
+#             if (length(setdiff(rawVal, (expVal <- c("NA", "No", "Ys")))) == 0) {
+#                 raw1 <- gsub("Yes", "Ys", raw1, fixed = TRUE)
+#                 if (length(setdiff(rawVal, expVal)) > 0)
+#                     stop(qsn, " vals: ", paste0(rawVal, collapse = "|"), 
+#                          " does not match expectation: ", paste0(expVal, collapse = "|"))
+#             } else
+#             if (length(setdiff(rawVal, (expVal <- c("NA", "Private", "Public")))) == 0) {
+#                 raw1 <- gsub("Private", "Pt", raw1, fixed = TRUE)
+#                 raw1 <- gsub("Public" , "Pc", raw1, fixed = TRUE)                
+#                 if (length(setdiff(rawVal, expVal)) > 0)
+#                     stop(qsn, " vals: ", paste0(rawVal, collapse = "|"), 
+#                          " does not match expectation: ", paste0(expVal, collapse = "|"))
+#             }
+#             
+#             return(relevel(as.factor(raw1), ref = "NA"))
+#         }
+#         , args = c(qsn))
     
 #     mapfn = function(HOSPI.COST) { return(cut(HOSPI.COST, 5, breaks = c(0, 100000, 200000, 300000, 900000), labels = NULL)) }     
 #     mapfn = function(Rasmussen)  { return(ifelse(sign(Rasmussen) >= 0, 1, 0)) } 
@@ -850,15 +680,7 @@ glbFctrMaxUniqVals <- 20 # default: 20
 glb_impute_na_data <- FALSE # or TRUE
 glb_mice_complete.seed <- 144 # or any integer
 
-glbFeatsCluster <- paste(grep("^Q.", glbFeatsExclude, value = TRUE), "fctr", sep = ".") # NULL : glbFeatsCluster <- c("YOB.Age.fctr", "Gender.fctr", "Income.fctr", 
-                     # # "Hhold.fctr",
-                     # "Edn.fctr",
-                     # paste(grep("^Q.", glbFeatsExclude, value = TRUE), "fctr", sep = ".")) # NULL : default or c("<feat1>", "<feat2>")
-# glbFeatsCluster <- grep(paste0("[", 
-#                         toupper(paste0(substr(glbFeatsText, 1, 1), collapse = "")),
-#                                       "]\\.[PT]\\."), 
-#                                names(glbObsAll), value = TRUE)
-
+glbFeatsCluster <- NULL # NULL: default or  c("<feat1>", "<feat2>")
 glb_cluster.seed <- 189 # or any integer
 glbClusterEntropyVar <- NULL # c(glb_rsp_var, as.factor(cut(glb_rsp_var, 3)), default: NULL)
 glbFeatsClusterVarsExclude <- FALSE # default FALSE
@@ -870,8 +692,6 @@ glbFeatsNzvUniqMin <- 10 # 10 : caret default
 
 glbRFESizes <- list()
 #glbRFESizes[["mdlFamily"]] <- c(4, 8, 16, 32, 64, 67, 68, 69) # Accuracy@69/70 = 0.8258
-# glbRFESizes[["RFE.X"]] <- c(96, 112, 120, 124, 128, 129, 130, 131, 132, 133, 135, 138, 142, 157, 187, 247) # accuracy(131) = 0.6285
-# glbRFESizes[["Final"]] <- c(8, 16, 32, 40, 44, 46, 48, 49, 50, 51, 52, 56, 64, 96, 128, 247) # accuracy(49) = 0.6164
 
 glbRFEResults <- NULL
 
@@ -956,21 +776,9 @@ if (glb_is_classification && !glb_is_binomial) {
     # glm does not work for multinomial
     glbMdlFamilies[["All.X"]] <- c("glmnet") 
 } else {
-    # glbMdlFamilies[["All.X"]] <- c("glmnet", "glm")
-    glbMdlFamilies[["All.X"]] <- c("glmnet")    
-    # glbMdlFamilies[["RFE.X"]] <- c("glmnet", "glm")
-    # glbMdlFamilies[["RFE.X"]] <- setdiff(glbMdlMethods, c(NULL
-    #     , "bayesglm" # error: Error in trControl$classProbs && any(classLevels != make.names(classLevels)) : invalid 'x' type in 'x && y'
-    #     , "lda","lda2" # error: Error in lda.default(x, grouping, ...) : variable 236 appears to be constant within groups
-    #     , "svmLinear" # Error in .local(object, ...) : test vector does not match model ! In addition: Warning messages:
-    #     , "svmLinear2" # SVM has not been trained using `probability = TRUE`, probabilities not available for predictions
-    #     , "svmPoly" # runs 75 models per cv sample for tunelength=5 # took > 2 hrs # Error in .local(object, ...) : test vector does not match model !     
-    #     , "svmRadial" # didn't bother
-    #     ,"xgbLinear","xgbTree" # Need clang-omp compiler; Upgrade to Revolution R 3.2.3 (3.2.2 current); https://github.com/dmlc/xgboost/issues/276 thread
-    #                                     ))
+    glbMdlFamilies[["All.X"]]     <- c("glmnet", "glm")
 }
-# glbMdlFamilies[["All.X.Inc"]] <- glbMdlFamilies[["All.X"]] # value not used
-# glbMdlFamilies[["RFE.X.Inc"]] <- glbMdlFamilies[["RFE.X"]] # value not used
+#glbMdlFamilies[["All.X.Inc"]] <- glbMdlFamilies[["All.X"]] # value not used
 
 # Check if interaction features make RFE better
 # glbMdlFamilies[["CSM.X"]] <- setdiff(glbMdlMethods, c("lda", "lda2")) # crashing due to category:.clusterid ??? #c("glmnet", "glm") # non-NULL list is mandatory
@@ -986,58 +794,32 @@ if (glb_is_classification && !glb_is_binomial) {
 #                                   )
 # glb_mdl_feats_lst[["CSM.X"]] <- "%<d-% dAFeats.CSM.X"
 
-# glbMdlFamilies[["Final"]] <- c(NULL) # NULL vector acceptable # c("glmnet", "glm")
+glbMdlFamilies[["Final"]] <- c(NULL) # NULL vector acceptable # c("glmnet", "glm")
 
+# change this to glbMdlBlockParallel <- c(<mdl_id>) or NULL : default
 glbMdlAllowParallel <- list()
 #glbMdlAllowParallel[["Final##rcv#glmnet"]] <- FALSE
-glbMdlAllowParallel[["All.X##rcv#glm"]] <- FALSE
-glbMdlAllowParallel[["All.X#ica#rcv#glmnet"]] <- FALSE
-glbMdlAllowParallel[["All.X#zv.pca#rcv#glmnet"]] <- FALSE
 
 # Check if tuning parameters make fit better; make it mdlFamily customizable ?
 glbMdlTuneParams <- data.frame()
 # When glmnet crashes at model$grid with error: ???
-AllX__rcv_glmnetTuneParams <- rbind(data.frame()
-    ,data.frame(parameter = "alpha",  vals = "0.100 0.325 0.550 0.775 1.000")
-    ,data.frame(parameter = "lambda", vals = "0.0356818417 0.05 0.06367626 0.07 0.09167068")
-                        )
-AllX_expoTransspatialSign_rcv_glmnetTuneParams <- rbind(data.frame()
-    ,data.frame(parameter = "alpha",  vals = "0.100 0.325 0.550 0.775 1.000")
-    ,data.frame(parameter = "lambda", vals = "0.0072065998 0.02 0.0334500732 0.04 0.05969355")
-                        ) # max.Accuracy.OOB = 0.5956175 @ 0.325 0.03345007
-FinalAllX__rcv_glmnetTuneParams <- rbind(data.frame()
-    ,data.frame(parameter = "alpha",  vals = "0.100 0.325 0.550 0.775 1.000")
-    ,data.frame(parameter = "lambda", vals = "6.451187e-03 0.02 2.994376e-02 0.04 0.05343633")
-                        )
-FinalAllX_expoTransspatialSign_rcv_glmnetTuneParams <- rbind(data.frame()
-    ,data.frame(parameter = "alpha",  vals = "0.100 0.325 0.550 0.775 1.000")
-    ,data.frame(parameter = "lambda", vals = "6.487621e-03 0.02 3.011287e-02 0.04 0.05373812")
-                        ) # max.Accuracy.fit = 0.5991618 @ 0.55 0.03011287
-glbMdlTuneParams <- rbind(glbMdlTuneParams,
-    cbind(data.frame(mdlId = "All.X##rcv#glmnet"),            AllX__rcv_glmnetTuneParams),
-    cbind(data.frame(mdlId = "All.X#expoTrans.spatialSign#rcv#glmnet"),
-                                AllX_expoTransspatialSign_rcv_glmnetTuneParams),    
-    cbind(data.frame(mdlId = "Final.All.X##rcv#glmnet"), FinalAllX__rcv_glmnetTuneParams),
-    cbind(data.frame(mdlId = "Final.All.X#expoTrans.spatialSign#rcv#glmnet"),
-                                FinalAllX_expoTransspatialSign_rcv_glmnetTuneParams))
+# AllX__rcv_glmnetTuneParams <- rbind(data.frame()
+#                         ,data.frame(parameter = "alpha",  vals = "0.100 0.325 0.550 0.775 1.000")
+#                         ,data.frame(parameter = "lambda", vals = "9.342e-02")    
+#                         ) # max.Accuracy.OOB = 0.5956175 @ 0.325 0.03345007
+# glbMdlTuneParams <- rbind(glbMdlTuneParams,
+#     cbind(data.frame(mdlId = "All.X##rcv#glmnet"),            AllX__rcv_glmnetTuneParams),
+#     cbind(data.frame(mdlId = "Final.All.X##rcv#glmnet"), FinalAllX__rcv_glmnetTuneParams))
 
     #avNNet    
     #   size=[1] 3 5 7 9; decay=[0] 1e-04 0.001  0.01   0.1; bag=[FALSE]; RMSE=1.3300906 
 
     #bagEarth
     #   degree=1 [2] 3; nprune=64 128 256 512 [1024]; RMSE=0.6486663 (up)
-bagEarthTuneParams <- rbind(data.frame()
-                        ,data.frame(parameter = "degree", vals = "1")
-                        ,data.frame(parameter = "nprune", vals = "256")
-                        )
-# glbMdlTuneParams <- myrbind_df(glbMdlTuneParams,
-#                                cbind(data.frame(mdlId = "Final.RFE.X.Inc##rcv#bagEarth"),
-#                                      bagEarthTuneParams))
-
-# glbMdlTuneParams <- myrbind_df(glbMdlTuneParams, rbind(data.frame()
-#     ,data.frame(method = "bagEarth", parameter = "nprune", vals = "256")
-#     ,data.frame(method = "bagEarth", parameter = "degree", vals = "2")    
-# ))
+# bagEarthTuneParams <- rbind(data.frame()
+#                         ,data.frame(parameter = "degree", vals = "1")
+#                         ,data.frame(parameter = "nprune", vals = "256")
+#                         )
 
     #earth 
     #   degree=[1]; nprune=2  [9] 17 25 33; RMSE=0.1334478
@@ -1116,12 +898,12 @@ pkgPreprocMethods <-
       ,"zv.pca", "ica", "spatialSign"
       ,"conditionalX") 
 
-glbMdlPreprocMethods <- list(# NULL # : default
-    "All.X" = list("glmnet" = union(setdiff(pkgPreprocMethods,
-                                            c("knnImpute", "bagImpute", "medianImpute")),
-                                    # c(NULL)))
-                                    c("expoTrans.spatialSign")))
-)
+glbMdlPreprocMethods <- NULL # : default # list(
+#     "All.X" = list("glmnet" = union(setdiff(pkgPreprocMethods,
+#                                             c("knnImpute", "bagImpute", "medianImpute")),
+#                                     # c(NULL)))
+#                                     c("expoTrans.spatialSign")))
+# )
 # glbMdlPreprocMethods[["RFE.X"]] <- list("glmnet" = union(unlist(glbMdlPreprocMethods[["All.X"]]),
 #                                                     "nzv.pca.spatialSign"))
 
@@ -1178,7 +960,7 @@ glbMdlEnsemble <- NULL #"auto"
 #ntv.glm <- glm(reformulate(indepVar, glb_rsp_var), family = "binomial", data = glbObsFit)
 #step.glm <- step(ntv.glm)
 
-glbMdlSelId <- NULL #select from c(NULL, "All.X##rcv#glmnet", "RFE.X##rcv#glmnet", <mdlId>)
+glbMdlSelId <- "All.X##rcv#glmnet" #select from c(NULL, "All.X##rcv#glmnet", "RFE.X##rcv#glmnet", <mdlId>)
 glbMdlFinId <- NULL #select from c(NULL, glbMdlSelId)
 
 glb_dsp_cols <- c(".pos", glbFeatsId, glbFeatsCategory, glb_rsp_var
@@ -1282,14 +1064,11 @@ glbObsOut <- list(NULL
 glb_out_obs <- NULL # select from c(NULL : default to "new", "all", "new", "trn")
 
 if (glb_is_classification && glb_is_binomial) {
-    # glbObsOut$vars[["Probability1"]] <- 
-    #     "%<d-% glbObsNew[, mygetPredictIds(glb_rsp_var, glbMdlFinId)$prob]" 
-    # glbObsOut$vars[[glb_rsp_var_raw]] <-
-    #     "%<d-% glb_map_rsp_var_to_raw(glbObsNew[,
-    #                                         mygetPredictIds(glb_rsp_var, glbMdlFinId)$value])"
-    glbObsOut$vars[["Predictions"]] <-
-        "%<d-% glb_map_rsp_var_to_raw(glbObsNew[,
-                                            mygetPredictIds(glb_rsp_var, glbMdlFinId)$value])"
+    glbObsOut$vars[["Probability1"]] <- 
+        "%<d-% glbObsNew[, mygetPredictIds(glb_rsp_var, glbMdlFinId)$prob]" 
+#     glbObsOut$vars[[glb_rsp_var_raw]] <- 
+#         "%<d-% glb_map_rsp_var_to_raw(glbObsNew[, 
+#                                             mygetPredictIds(glb_rsp_var, glbMdlFinId)$value])"         
 } else {
 #     glbObsOut$vars[[glbFeatsId]] <- 
 #         "%<d-% as.integer(gsub('Test#', '', glbObsNew[, glbFeatsId]))"
@@ -1302,11 +1081,10 @@ if (glb_is_classification && glb_is_binomial) {
 # glbObsOut$vars[[glb_rsp_var_raw]] <- glb_rsp_var_raw
 # glbObsOut$vars[[paste0(head(unlist(strsplit(mygetPredictIds$value, "")), -1), collapse = "")]] <-
 
-glbOutStackFnames <- # NULL #: default
-    c("Votes_Ensemble_cnk06_out_fin.csv") # manual stack
-    # c("ebayipads_finmdl_bid1_out_nnet_1.csv") # universal stack
+glbOutStackFnames <- NULL #: default
+    # c("ebayipads_txt_assoc1_out_bid1_stack.csv") 
 
-glbOut <- list(pfx = "Q109244No_AllXpreProc_cnk02_rest_")
+glbOut <- list(pfx = "<scriptName>_")
 # lclImageSampleSeed <- 129
 glbOutDataVizFname <- NULL # choose from c(NULL, "<projectId>_obsall.csv")
 
@@ -1331,11 +1109,10 @@ if (!is.null(chkChunksLabels <- knitr::all_labels()) && # knitr::all_labels() do
                   setdiff(glbChunks$labels, chkChunksLabels)))    
 }
 
-glbChunks[["first"]] <- "fit.models_1" # NULL # default: script will load envir from previous chunk
-glbChunks[["last" ]] <- NULL # NULL # default: script will save envir at end of this chunk 
-glbChunks[["inpFilePathName"]] <- "data/Q109244No_AllXpreProc_cnk02_fit.models_1_fit.models_1.RData" # NULL: default or "data/<prvScriptName>_<lstChunkLbl>.RData"
+glbChunks[["first"]] <- NULL #default: script will load envir from previous chunk
+glbChunks[["last"]] <- NULL #"extract.features.end" #NULL #default: script will save envir at end of this chunk 
+glbChunks[["inpFilePathName"]] <- NULL # NULL: default or "data/<prvScriptName>_<lstChunkLbl>.RData"
 #mysavChunk(glbOut$pfx, glbChunks[["last"]]) # called from myevlChunk
-# Temporary: Delete this function (if any) from here after appropriate .RData file is saved
 
 # Inspect max OOB FP
 #chkObsOOB <- subset(glbObsOOB, !label.fctr.All.X..rcv.glmnet.is.acc)
@@ -1875,17 +1652,9 @@ glb_chunks_df <- myadd_chunk(glb_chunks_df, "scrub.data", major.inc = FALSE)
 ```
 
 ### Step ``r mydsp_chunk(glb_chunks_df)``
-# ```{r scrub.data, cache=FALSE, echo=FALSE, eval=myevlChunk(glbChunks, glbOut$pfx)}
-```{r scrub.data, cache=FALSE, echo=FALSE, eval=myevlChunk(glbChunks, glbOut$pfx, keepSpec = c("glbMdlFamilies", "glbMdlTuneParams"), dropSpec = c(NULL))}
-#myloadChunk(glbChunks$inpFilePathName, keepSpec = c("glbMdlFamilies", "glbMdlTuneParams"), dropSpec = c(NULL)); glb2Sav()
-
-# glbObsAll$Hhold.fctr <- plyr::revalue(glbObsAll$Hhold.fctr, c(
-#         "SKy"  = "my.oth",
-#         "PKn"  = "my.oth",        
-#         "PKy"  = "my.oth",                
-#         "**"   = "**"))
-# glbObsTrn <- glbObsTrn[!(glbObsTrn$USER_ID %in% c(4667, 5919)), ]
-# glbObsAll <- glbObsAll[!(glbObsAll$USER_ID %in% c(4667, 5919)), ]
+```{r scrub.data, cache=FALSE, echo=FALSE, eval=myevlChunk(glbChunks, glbOut$pfx)}
+#```{r scrub.data, cache=FALSE, echo=FALSE, eval=myevlChunk(glbChunks, glbOut$pfx, keepSpec = c(NULL), dropSpec = c(NULL))}
+#myloadChunk(glbChunks$inpFilePathName, keepSpec = c(NULL), dropSpec = c(NULL)); glb2Sav()
 
 mycheck_problem_data(glbObsAll, featsExclude = glbFeatsExclude, 
                      fctrMaxUniqVals = glbFctrMaxUniqVals)
@@ -3687,8 +3456,8 @@ glb_chunks_df <- myadd_chunk(glb_chunks_df, "cluster.data", major.inc = TRUE)
 ```
 
 ## Step ``r mydsp_chunk(glb_chunks_df)``
-# ```{r cluster.data, cache=FALSE, echo=FALSE, eval=myevlChunk(glbChunks, glbOut$pfx)}
-```{r cluster.data, cache=FALSE, echo=FALSE, eval=myevlChunk(glbChunks, glbOut$pfx, keepSpec = c("glbFeatsCluster", "glbFeatsClusterVarsExclude"), dropSpec = c("glb_cluster", "glb_cluster_entropy_var", "glbFeatsTextClusterVarsExclude"))}
+```{r cluster.data, cache=FALSE, echo=FALSE, eval=myevlChunk(glbChunks, glbOut$pfx)}
+# ```{r cluster.data, cache=FALSE, echo=FALSE, eval=myevlChunk(glbChunks, glbOut$pfx, keepSpec = c("glbFeatsCluster", "glbFeatsClusterVarsExclude"), dropSpec = c("glb_cluster", "glb_cluster_entropy_var", "glbFeatsTextClusterVarsExclude"))}
 #myloadChunk(glbChunks$inpFilePathName, keepSpec = c("glbFeatsCluster", "glbFeatsClusterVarsExclude"), dropSpec = c("glb_cluster", "glb_cluster_entropy_var", "glbFeatsTextClusterVarsExclude"))
 #keepSpec = c("glbFeatsCategory","glb_dsp_cols")) # if glbFeatsCategory needs to be changed
 
@@ -4332,8 +4101,8 @@ glb_chunks_df <- myadd_chunk(glb_chunks_df, "select.features", major.inc = TRUE)
 ```
 
 ## Step ``r mydsp_chunk(glb_chunks_df)``
-# ```{r select.features, cache=FALSE, echo=FALSE, eval=myevlChunk(glbChunks, glbOut$pfx)}
-```{r select.features, cache=FALSE, echo=FALSE, eval=myevlChunk(glbChunks, glbOut$pfx, keepSpec = c("glbMdlAllowParallel", "glbMdlSelId"), dropSpec = c("glb_preproc_methods"))}
+```{r select.features, cache=FALSE, echo=FALSE, eval=myevlChunk(glbChunks, glbOut$pfx)}
+#```{r select.features, cache=FALSE, echo=FALSE, eval=myevlChunk(glbChunks, glbOut$pfx, keepSpec = c("glbMdlAllowParallel", "glbMdlSelId"), dropSpec = c("glb_preproc_methods"))}
 #myloadChunk(glbChunks$inpFilePathName, keepSpec = c("glbMdlAllowParallel", "glbMdlSelId"), dropSpec = c("glb_preproc_methods"))
 
 #stop(here"); glb2Sav(); glbObsAll <- savObsAll
@@ -4949,9 +4718,9 @@ rm(ret_lst)
 glb_chunks_df <- myadd_chunk(glb_chunks_df, "fit.models", major.inc = FALSE)
 ```
 
-#```{r fit.models_1, cache=FALSE, fig.height=10, fig.width=15, eval=myevlChunk(glbChunks, glbOut$pfx)}
-```{r fit.models_1, cache=FALSE, echo=FALSE, eval=myevlChunk(glbChunks, glbOut$pfx, keepSpec = c("glbMdlFamilies","glbMdlAllowParallel","glbMdlPreprocMethods","glbMdlTuneParams","glbMdlSelId"), dropSpec = c(NULL))}
-#myloadChunk(glbChunks$inpFilePathName, keepSpec = c("glbMdlFamilies","glbMdlAllowParallel","glbMdlPreprocMethods","glbMdlTuneParams","glbMdlSelId"), dropSpec = c(NULL)); glb2Sav()
+```{r fit.models_1, cache=FALSE, fig.height=10, fig.width=15, eval=myevlChunk(glbChunks, glbOut$pfx)}
+#```{r fit.models_1, cache=FALSE, echo=FALSE, eval=myevlChunk(glbChunks, glbOut$pfx, keepSpec = c("glbMdlFamilies", "glbRFESizes", "glbMdlAllowParallel","glbMdlPreprocMethods"), dropSpec = c(NULL))}
+#myloadChunk(glbChunks$inpFilePathName, keepSpec = c("glbMdlFamilies", "glbRFESizes", "glbMdlAllowParallel","glbMdlPreprocMethods"), dropSpec = c(NULL)); glb2Sav()
 
 fit.models_1_chunk_df <- myadd_chunk(NULL, "fit.models_1_bgn", label.minor = "setup")
 
@@ -5349,8 +5118,8 @@ fit.models_1_chunk_df <-
 glb_chunks_df <- myadd_chunk(glb_chunks_df, "fit.models", major.inc = FALSE)
 ```
 
-# ```{r fit.models_2, cache=FALSE, fig.height=10, fig.width=15, eval=myevlChunk(glbChunks, glbOut$pfx)}
-```{r fit.models_2, cache=FALSE, echo=FALSE, eval=myevlChunk(glbChunks, glbOut$pfx, keepSpec = c("glbMdlAllowParallel", "glbMdlEnsemble", "glbMdlMetricsEval", "glbMdlTuneParams"), dropSpec = c(NULL))}
+ ```{r fit.models_2, cache=FALSE, fig.height=10, fig.width=15, eval=myevlChunk(glbChunks, glbOut$pfx)}
+#```{r fit.models_2, cache=FALSE, echo=FALSE, eval=myevlChunk(glbChunks, glbOut$pfx, keepSpec = c("glbMdlAllowParallel", "glbMdlEnsemble", "glbMdlMetricsEval", "glbMdlTuneParams"), dropSpec = c(NULL))}
 #myloadChunk(glbChunks$inpFilePathName, keepSpec = c("glbMdlAllowParallel", "glbMdlEnsemble", "glbMdlMetricsEval", "glbMdlTuneParams"), dropSpec = c(NULL)); glb2Sav()
 
 fit.models_2_chunk_df <- 
