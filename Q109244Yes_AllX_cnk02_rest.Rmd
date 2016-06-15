@@ -1003,33 +1003,32 @@ if (glb_is_classification && !glb_is_binomial) {
 
 # glbMdlFamilies[["Final"]] <- c(NULL) # NULL vector acceptable # c("glmnet", "glm")
 
-glbMdlAllowParallel <- list()
-#glbMdlAllowParallel[["Final##rcv#glmnet"]] <- FALSE
+glbMdlSequential <- c(NULL
+                      , "All.X#zv.pca#rcv#glmnet"
+                      )
 
 # Check if tuning parameters make fit better; make it mdlFamily customizable ?
 glbMdlTuneParams <- data.frame()
 
 # When glmnet crashes at model$grid with error: ???
-# AllX__rcv_glmnetTuneParams <- rbind(data.frame() # alpha shd be <= 1.0 ALWAYS
-#     ,data.frame(parameter = "alpha",  vals = "0.100 0.325 0.550 0.775 1.000")
-#     ,data.frame(parameter = "lambda", vals = "0.0053781495 0.01 0.0249631588 0.03 0.04454817")
-#                         ) # max.Accuracy.OOB = 0.5981941 @ 0.775 0.02496316
-# AllX_YeoJohnson_rcv_glmnetTuneParams <- rbind(data.frame()
-#     ,data.frame(parameter = "alpha",  vals = "0.100 0.325 0.550 0.775 1.000")
-#     ,data.frame(parameter = "lambda", vals = "0.0053781495 0.01 0.0249631588 0.03 0.04454817")
-#                         ) # max.Accuracy.OOB = 0.6004515 @ 0.775 0.02496316
-# AllX_zvpca_rcv_glmnetTuneParams <- rbind(data.frame()
-#     ,data.frame(parameter = "alpha",  vals = "0.325 0.550 0.775 0.9 1.000")
-#     ,data.frame(parameter = "lambda", vals = "1.040899e-03 0.003 4.831424e-03 0.01 2.242548e-02")
-#                         ) # max.Accuracy.OOB = 0.6185102 @ 1.0 0.004831424
-#                           #                    0.616408  @ 0.9 0.004831424
+AllX__rcv_glmnetTuneParams <- rbind(data.frame() # alpha shd be <= 1.0 ALWAYS
+    ,data.frame(parameter = "alpha",  vals = "0.325 0.550 0.775 0.9 1.000")
+    ,data.frame(parameter = "lambda", vals = "1.034113e-03 4.799925e-03 2.227928e-02 0.04 0.06")
+                        ) # max.Accuracy.OOB = 0.7875648 @ 0.55   0.04
+AllX_nzv_rcv_glmnetTuneParams <- rbind(data.frame() 
+    ,data.frame(parameter = "alpha",  vals = "0.100 0.325 0.550 0.775 1.000") 
+    ,data.frame(parameter = "lambda", vals = "1.842462e-02 0.03287977 0.04733492 0.06179007 0.07624522")) #  max.Accuracy.OOB = 0.7875648 @ 0.55 0.06179007 @ 0.55 0.04733492 @ 0.775 0.03287977 @ 1 0.01842462
+AllX_zvpca_rcv_glmnetTuneParams <- rbind(data.frame() 
+    ,data.frame(parameter = "alpha",  vals = "0.100 0.325 0.550 0.775 1.000") 
+    ,data.frame(parameter = "lambda", vals = "1.847495e-02 0.02 0.03296959 0.04 0.05")) #  max.Accuracy.OOB = 0.7927461 @ 1 0.01847495
+#                  0.7875648 @ 0.775 0.03296959
 # 
-# glbMdlTuneParams <- rbind(glbMdlTuneParams
-#     ,cbind(data.frame(mdlId = "All.X##rcv#glmnet"),         AllX__rcv_glmnetTuneParams)
-#     ,cbind(data.frame(mdlId = "All.X#YeoJohnson#rcv#glmnet"), 
-#                                                             AllX_YeoJohnson_rcv_glmnetTuneParams)      ,cbind(data.frame(mdlId = "All.X#zv.pca#rcv#glmnet"), 
-#                                                             AllX_zvpca_rcv_glmnetTuneParams)   
-# )
+glbMdlTuneParams <- rbind(glbMdlTuneParams
+    ,cbind(data.frame(mdlId = "All.X##rcv#glmnet"),     AllX__rcv_glmnetTuneParams)
+    ,cbind(data.frame(mdlId = "All.X#nzv#rcv#glmnet"),  AllX_nzv_rcv_glmnetTuneParams)
+    ,cbind(data.frame(mdlId = "All.X#zv.pca#rcv#glmnet"),
+                                                        AllX_zvpca_rcv_glmnetTuneParams)
+)
 
     #avNNet    
     #   size=[1] 3 5 7 9; decay=[0] 1e-04 0.001  0.01   0.1; bag=[FALSE]; RMSE=1.3300906 
@@ -1902,8 +1901,8 @@ glb_chunks_df <- myadd_chunk(glb_chunks_df, "scrub.data", major.inc = FALSE)
 
 ### Step ``r mydsp_chunk(glb_chunks_df)``
 # ```{r scrub.data, cache=FALSE, echo=FALSE, eval=myevlChunk(glbChunks, glbOut$pfx)}
-```{r scrub.data, cache=FALSE, echo=FALSE, eval=myevlChunk(glbChunks, glbOut$pfx, keepSpec = c("glbMdlFamilies", "glbMdlTuneParams","glbFeatsCategory","glb_dsp_cols","glbMdlPreprocMethods","glbMdlSelId","glbMdlAllowParallel"), dropSpec = c(NULL))}
-#myloadChunk(glbChunks$inpFilePathName, keepSpec = c("glbMdlFamilies", "glbMdlTuneParams","glbFeatsCategory","glb_dsp_cols","glbMdlPreprocMethods","glbMdlSelId","glbMdlAllowParallel"), dropSpec = c(NULL)); glb2Sav()
+```{r scrub.data, cache=FALSE, echo=FALSE, eval=myevlChunk(glbChunks, glbOut$pfx, keepSpec = c("glbMdlFamilies", "glbMdlTuneParams","glbFeatsCategory","glb_dsp_cols","glbMdlPreprocMethods","glbMdlSelId","glbMdlSequential"), dropSpec = c(NULL))}
+#myloadChunk(glbChunks$inpFilePathName, keepSpec = c("glbMdlFamilies", "glbMdlTuneParams","glbFeatsCategory","glb_dsp_cols","glbMdlPreprocMethods","glbMdlSelId","glbMdlSequential"), dropSpec = c(NULL)); glb2Sav()
 
 # glbObsAll$Hhold.fctr <- plyr::revalue(glbObsAll$Hhold.fctr, c(
 #         "SKy"  = "my.oth",
@@ -3713,9 +3712,10 @@ glb_chunks_df <- myadd_chunk(glb_chunks_df, "cluster.data", major.inc = TRUE)
 ```
 
 ## Step ``r mydsp_chunk(glb_chunks_df)``
-# ```{r cluster.data, cache=FALSE, echo=FALSE, eval=myevlChunk(glbChunks, glbOut$pfx)}
-```{r cluster.data, cache=FALSE, echo=FALSE, eval=myevlChunk(glbChunks, glbOut$pfx, keepSpec = c("glbFeatsCluster", "glbFeatsClusterVarsExclude"), dropSpec = c("glb_cluster", "glb_cluster_entropy_var", "glbFeatsTextClusterVarsExclude"))}
-#myloadChunk(glbChunks$inpFilePathName, keepSpec = c(NULL), dropSpec = c(NULL))
+```{r cluster.data, cache=FALSE, echo=FALSE, eval=myevlChunk(glbChunks, glbOut$pfx, keepSpec = c("glbMdlTuneParams"), dropSpec = c(NULL))}
+if (!is.null(glbChunks$first) && (glbChunks$first == "cluster.data") &&
+    (is.null(knitr::opts_current$get(name = 'label')))) # not knitting
+    myloadChunk(glbChunks$inpFilePathName, keepSpec = c("glbMdlTuneParams"), dropSpec = c(NULL))
 
 if (!is.null(glbFeatsCluster)) {
     require(proxy)
@@ -3956,7 +3956,11 @@ glb_chunks_df <- myadd_chunk(glb_chunks_df, "partition.data.training", major.inc
 ```
 
 ## Step ``r mydsp_chunk(glb_chunks_df)``
-```{r partition.data.training, cache=FALSE, echo=FALSE, eval=myevlChunk(glbChunks, glbOut$pfx)}
+```{r partition.data.training, cache=FALSE, echo=FALSE, eval=myevlChunk(glbChunks, glbOut$pfx) , keepSpec = c(NULL), dropSpec = c(NULL)}
+if (!is.null(glbChunks$first) && (glbChunks$first == "partition.data.training") &&
+    (is.null(knitr::opts_current$get(name = 'label')))) # not knitting
+    myloadChunk(glbChunks$inpFilePathName, keepSpec = c(NULL), dropSpec = c(NULL))
+
 startTm = proc.time()["elapsed"]
 print(sprintf("partition.data.training chunk: setup: elapsed: %0.2f secs",
                       as.numeric(proc.time()["elapsed"]) - startTm))
@@ -4360,11 +4364,11 @@ glb_chunks_df <- myadd_chunk(glb_chunks_df, "select.features", major.inc = TRUE)
 ```
 
 ## Step ``r mydsp_chunk(glb_chunks_df)``
-# ```{r select.features, cache=FALSE, echo=FALSE, eval=myevlChunk(glbChunks, glbOut$pfx)}
-```{r select.features, cache=FALSE, echo=FALSE, eval=myevlChunk(glbChunks, glbOut$pfx, keepSpec = c("glbMdlAllowParallel", "glbMdlSelId"), dropSpec = c("glb_preproc_methods"))}
-#myloadChunk(glbChunks$inpFilePathName, keepSpec = c("glbMdlAllowParallel", "glbMdlSelId"), dropSpec = c("glb_preproc_methods"))
+```{r select.features, cache=FALSE, echo=FALSE, eval=myevlChunk(glbChunks, glbOut$pfx, keepSpec = c(NULL), dropSpec = c(NULL))}
+if (!is.null(glbChunks$first) && (glbChunks$first == "select.features") &&
+    (is.null(knitr::opts_current$get(name = 'label')))) # not knitting
+    myloadChunk(glbChunks$inpFilePathName, keepSpec = c(NULL), dropSpec = c(NULL))
 
-#stop(here"); glb2Sav(); glbObsAll <- savObsAll
 glb_feats_df <- myselect_features(entity_df = glbObsTrn, 
                                   exclude_vars_as_features = glbFeatsExclude, 
                                   rsp_var = glb_rsp_var)
@@ -4477,7 +4481,11 @@ glb_chunks_df <- myadd_chunk(glb_chunks_df, "fit.models", major.inc=TRUE)
 ```
 
 ## Step ``r mydsp_chunk(glb_chunks_df)``
-```{r fit.models_0, cache=FALSE, eval=myevlChunk(glbChunks, glbOut$pfx)}
+```{r fit.models_0, cache=FALSE, eval=myevlChunk(glbChunks, glbOut$pfx, keepSpec = c(NULL), dropSpec = c(NULL))}
+if (!is.null(glbChunks$first) && (glbChunks$first == "fit.models_0") &&
+    (is.null(knitr::opts_current$get(name = 'label')))) # not knitting
+    myloadChunk(glbChunks$inpFilePathName, keepSpec = c(NULL), dropSpec = c(NULL))
+
 fit.models_0_chunk_df <- myadd_chunk(NULL, "fit.models_0_bgn", label.minor = "setup")
 # load(paste0(glbOut$pfx, "dsk.RData"))
 
@@ -4793,7 +4801,7 @@ ret_lst <- myfit_mdl(mdl_specs_lst = myinit_mdl_specs_lst(mdl_specs_lst = list(
                         trainControl.repeats = glb_rcv_n_repeats,
                         trainControl.classProbs = glb_is_classification,
                         trainControl.summaryFunction = glbMdlMetricSummaryFn,
-                        trainControl.allowParallel = glbMdlAllowParallel,                        
+                        trainControl.blockParallel = glbMdlSequential,                        
                         train.metric = glbMdlMetricSummary, 
                         train.maximize = glbMdlMetricMaximize,    
                         train.method = "rpart")),
@@ -4817,7 +4825,7 @@ if ((length(glbFeatsDateTime) > 0) &&
             trainControl.number = glb_rcv_n_folds, trainControl.repeats = glb_rcv_n_repeats,
             trainControl.classProbs = glb_is_classification,
             trainControl.summaryFunction = glbMdlMetricSummaryFn,
-            trainControl.allowParallel = glbMdlAllowParallel,            
+            trainControl.blockParallel = glbMdlSequential,            
             train.metric = glbMdlMetricSummary, 
             train.maximize = glbMdlMetricMaximize,    
             train.method = "glmnet")),
@@ -4845,7 +4853,7 @@ if ((length(glbFeatsDateTime) > 0) &&
         trainControl.number = glb_rcv_n_folds, trainControl.repeats = glb_rcv_n_repeats,
         trainControl.classProbs = glb_is_classification,
         trainControl.summaryFunction = glbMdlMetricSummaryFn,
-        trainControl.allowParallel = glbMdlAllowParallel,        
+        trainControl.blockParallel = glbMdlSequential,        
         train.metric = glbMdlMetricSummary, 
         train.maximize = glbMdlMetricMaximize,    
         train.method = "glmnet")),
@@ -4873,7 +4881,7 @@ if (length(glbFeatsText) > 0) {
         trainControl.number = glb_rcv_n_folds, trainControl.repeats = glb_rcv_n_repeats,
         trainControl.classProbs = glb_is_classification,
         trainControl.summaryFunction = glbMdlMetricSummaryFn,
-        trainControl.allowParallel = glbMdlAllowParallel,                                
+        trainControl.blockParallel = glbMdlSequential,                                
         train.metric = glbMdlMetricSummary, 
         train.maximize = glbMdlMetricMaximize,    
         train.method = "glmnet")),
@@ -4916,7 +4924,7 @@ if (length(glbFeatsText) > 0) {
         trainControl.number = glb_rcv_n_folds, trainControl.repeats = glb_rcv_n_repeats,
         trainControl.classProbs = glb_is_classification,
         trainControl.summaryFunction = glbMdlMetricSummaryFn,
-        trainControl.allowParallel = glbMdlAllowParallel,        
+        trainControl.blockParallel = glbMdlSequential,        
         train.metric = glbMdlMetricSummary, 
         train.maximize = glbMdlMetricMaximize,    
         train.method = "glmnet")),
@@ -4938,7 +4946,7 @@ if (length(int_feats <- setdiff(setdiff(unique(glb_feats_df$cor.high.X), NA),
         trainControl.number=glb_rcv_n_folds, trainControl.repeats=glb_rcv_n_repeats,
         trainControl.classProbs = glb_is_classification,
         trainControl.summaryFunction = glbMdlMetricSummaryFn,
-        trainControl.allowParallel = glbMdlAllowParallel,
+        trainControl.blockParallel = glbMdlSequential,
         train.metric = glbMdlMetricSummary, 
         train.maximize = glbMdlMetricMaximize,    
         train.method="glmnet")),
@@ -4961,7 +4969,7 @@ ret_lst <- myfit_mdl(mdl_specs_lst = myinit_mdl_specs_lst(mdl_specs_lst = list(
             trainControl.number = glb_rcv_n_folds, trainControl.repeats = glb_rcv_n_repeats,
             trainControl.classProbs = glb_is_classification,
             trainControl.summaryFunction = glbMdlMetricSummaryFn,
-            trainControl.allowParallel = glbMdlAllowParallel,
+            trainControl.blockParallel = glbMdlSequential,
             train.metric = glbMdlMetricSummary, 
             train.maximize = glbMdlMetricMaximize,    
             train.method = "glmnet")),
@@ -4975,11 +4983,41 @@ fit.models_0_chunk_df <-
 rm(ret_lst)
 
 glb_chunks_df <- myadd_chunk(glb_chunks_df, "fit.models", major.inc = FALSE)
+if (!is.null(glbChunks$first) && (glbChunks$first == "fit.models_1") &&
+    (is.null(knitr::opts_current$get(name = 'label')))) # not knitting
+    myloadChunk(glbChunks$inpFilePathName, 
+                keepSpec = c("glbMdlFamilies","glbMdlSequential","glbMdlPreprocMethods",
+                             "glbMdlTuneParams","glbMdlSelId","glbMdlEnsemble"), 
+                dropSpec = c(NULL))
 ```
 
-#```{r fit.models_1, cache=FALSE, fig.height=10, fig.width=15, eval=myevlChunk(glbChunks, glbOut$pfx)}
-```{r fit.models_1, cache=FALSE, echo=FALSE, eval=myevlChunk(glbChunks, glbOut$pfx, keepSpec = c("glbMdlFamilies","glbMdlAllowParallel","glbMdlPreprocMethods","glbMdlTuneParams","glbMdlSelId","glbMdlEnsemble"), dropSpec = c(NULL))}
-#myloadChunk(glbChunks$inpFilePathName, keepSpec = c("glbMdlFamilies","glbMdlAllowParallel","glbMdlPreprocMethods","glbMdlTuneParams","glbMdlSelId","glbMdlEnsemble"), dropSpec = c(NULL)); glb2Sav()
+```{r fit.models_1, cache=FALSE, echo=FALSE, eval=myevlChunk(glbChunks, glbOut$pfx, keepSpec = c("glbMdlFamilies","glbMdlSequential","glbMdlPreprocMethods","glbMdlTuneParams","glbMdlSelId","glbMdlEnsemble"), dropSpec = c(NULL))}
+
+# to save models temporarily; File needs to be manually moved to data directory; renamed & specified as inputFile in glbChunks
+# sav_models_df <- glb_models_df; savObjects <- setdiff(grep("glb", ls(envir = globalenv()), value = TRUE),c(NULL, "glbChunks")); print("Largest 5 objects:"); print(tail(sort(sapply(savObjects, function(obj) object.size(get(obj, envir = .GlobalEnv)))), 5)); save(list = savObjects, file = paste0("latest_", tail(glb_models_df$id, 1), ".RData"))
+
+# To deal with parallel process crashes
+# glbMdlSequential <- union(glbMdlSequential, "All.X#zv.pca#rcv#glmnet"); print(glbMdlSequential)
+
+# To tune models; If best model contains pca, tune the second best first & then the best 
+# mdlId="All.X##rcv#glmnet"
+# mdlId="All.X#nzv#rcv#glmnet"
+# mdlId="All.X#zv.pca#rcv#glmnet"
+# ggplot(glb_models_lst[[mdlId]], highlight = TRUE); print(glb_models_lst[[mdlId]]$bestTune)
+# print(sort(unique(glb_models_lst[[mdlId]]$results$alpha)))
+# print(sort(unique(glb_models_lst[[mdlId]]$results$lambda)))
+# thsTuneParams <- rbind(data.frame() ,data.frame(parameter = "alpha",  vals = "0.100 0.325 0.550 0.775 1.000") ,data.frame(parameter = "lambda", vals = "1.847495e-02 0.02 0.03296959 0.04 0.05")) #  max.Accuracy.OOB = 0.7927461 @ 1 0.01847495
+#                                                0.7875648 @ 0.775 0.03296959
+# glbMdlTuneParams <- rbind(data.frame(), cbind(data.frame(mdlId = mdlId), thsTuneParams)); print(glbMdlTuneParams)
+# glb2Sav(); print(nrow(sav_models_df)); glb_models_df <- sav_models_df[sav_models_df$id != mdlId, ]; print(nrow(glb_models_df))
+# ctrl-L; shft-cmnd-retn
+# after params finalized move to r set_global_options chunk
+
+# to add preProc models 
+#   Impute methods are useful only if there are NAs in the data fed into models
+# glbMdlPreprocMethods[["All.X"]] <- list("glmnet" = setdiff(pkgPreprocMethods, c("knnImpute", "bagImpute", "medianImpute"))); print(glbMdlPreprocMethods)
+    #                                 # c(NULL)))
+    #                                 c("zv.YeoJohnson.pca")))
 
 fit.models_1_chunk_df <- myadd_chunk(NULL, "fit.models_1_bgn", label.minor = "setup")
 
@@ -5184,7 +5222,7 @@ for (mdl_id_pfx in names(glbMdlFamilies)) {
             trainControl.repeats = glb_rcv_n_repeats,
             trainControl.classProbs = glb_is_classification,
             trainControl.summaryFunction = glbMdlMetricSummaryFn,
-            trainControl.allowParallel = glbMdlAllowParallel,            
+            trainControl.blockParallel = glbMdlSequential,            
             train.metric = glbMdlMetricSummary, 
             train.maximize = glbMdlMetricMaximize,    
             train.method = method,
@@ -5221,8 +5259,8 @@ for (family in setdiff(names(glbMdlPreprocMethods), c(""))) {
     bstMdlId <- bstMdlDf[1, "id"]
     bstMdlIdComponents <- myparseMdlId(bstMdlId)
     
-    if (bstMdlIdComponents$preProcess != "") 
-        next # best model already has non-null preprocessing
+    # if (bstMdlIdComponents$preProcess != "") 
+    #     next # best model already has non-null preprocessing
     
     indepVar <- trim(unlist(strsplit(glb_models_df[glb_models_df$id == bstMdlId,
                                                    "feats"], "[,]")))
@@ -5243,7 +5281,7 @@ for (family in setdiff(names(glbMdlPreprocMethods), c(""))) {
             trainControl.repeats = glb_rcv_n_repeats,
             trainControl.classProbs = glb_is_classification,
             trainControl.summaryFunction = glbMdlMetricSummaryFn,
-            trainControl.allowParallel = glbMdlAllowParallel,
+            trainControl.blockParallel = glbMdlSequential,
             train.metric = glbMdlMetricSummary,
             train.maximize = glbMdlMetricMaximize,
             train.method = bstMdlIdComponents$alg,
@@ -5373,8 +5411,8 @@ for (family in setdiff(names(glbMdlPreprocMethods), c(""))) {
 #     print("rpart_sel_wlm_mdl"); prp(rpart_sel_wlm_mdl)
 # 
 
-print(glb_models_df[order(glb_models_df$min.elapsedtime.everything), 
-                    c("min.elapsedtime.everything"), FALSE])
+print(head(orderBy(glbgetModelSelectFormula(), glb_models_df)[, 
+    glbMdlMetricsEval[glbMdlMetricsEval %in% names(glb_models_df)], FALSE], 10))
 
 rm(ret_lst)
 fit.models_1_chunk_df <- 
@@ -5384,8 +5422,8 @@ glb_chunks_df <- myadd_chunk(glb_chunks_df, "fit.models", major.inc = FALSE)
 ```
 
 # ```{r fit.models_2, cache=FALSE, fig.height=10, fig.width=15, eval=myevlChunk(glbChunks, glbOut$pfx)}
-```{r fit.models_2, cache=FALSE, echo=FALSE, eval=myevlChunk(glbChunks, glbOut$pfx, keepSpec = c("glbMdlAllowParallel", "glbMdlEnsemble", "glbMdlMetricsEval", "glbMdlTuneParams"), dropSpec = c(NULL))}
-#myloadChunk(glbChunks$inpFilePathName, keepSpec = c("glbMdlAllowParallel", "glbMdlEnsemble", "glbMdlMetricsEval", "glbMdlTuneParams"), dropSpec = c(NULL)); glb2Sav()
+```{r fit.models_2, cache=FALSE, echo=FALSE, eval=myevlChunk(glbChunks, glbOut$pfx, keepSpec = c("glbMdlSequential", "glbMdlEnsemble", "glbMdlMetricsEval", "glbMdlTuneParams"), dropSpec = c(NULL))}
+#myloadChunk(glbChunks$inpFilePathName, keepSpec = c("glbMdlSequential", "glbMdlEnsemble", "glbMdlMetricsEval", "glbMdlTuneParams"), dropSpec = c(NULL)); glb2Sav()
 
 fit.models_2_chunk_df <- 
     myadd_chunk(NULL, "fit.models_2_bgn", label.minor = "setup")
@@ -5633,7 +5671,7 @@ if (!is.null(glbMdlEnsemble)) {
                 trainControl.repeats = glb_rcv_n_repeats,
                 trainControl.classProbs = glb_is_classification,
                 trainControl.summaryFunction = glbMdlMetricSummaryFn,
-                trainControl.allowParallel = glbMdlAllowParallel,
+                trainControl.blockParallel = glbMdlSequential,
                 train.metric = glbMdlMetricSummary,
                 train.maximize = glbMdlMetricMaximize,
                 train.method = "glmnet"))
@@ -5665,7 +5703,7 @@ if (!is.null(glbMdlEnsemble)) {
                 trainControl.repeats = glb_rcv_n_repeats,
                 trainControl.classProbs = glb_is_classification,
                 trainControl.summaryFunction = glbMdlMetricSummaryFn,
-                trainControl.allowParallel = glbMdlAllowParallel,
+                trainControl.blockParallel = glbMdlSequential,
                 train.metric = glbMdlMetricSummary,
                 train.maximize = glbMdlMetricMaximize,
                 train.method = "glmnet"))
@@ -5717,7 +5755,7 @@ if (!is.null(glbMdlEnsemble)) {
     #                 trainControl.repeats = glb_rcv_n_repeats,
     #                 trainControl.classProbs = glb_is_classification,
     #                 trainControl.summaryFunction = glbMdlMetricSummaryFn,
-    #                 trainControl.allowParallel = glbMdlAllowParallel,                     
+    #                 trainControl.blockParallel = glbMdlSequential,                     
     #                 train.metric = glbMdlMetricSummary, 
     #                 train.maximize = glbMdlMetricMaximize,    
     #                 train.method = method)),
@@ -5959,7 +5997,7 @@ if (!all(is.na(glbObsNew[, glb_rsp_var]))) {
                         trainControl.repeats = glb_rcv_n_repeats,
                         trainControl.classProbs = glb_is_classification,
                         trainControl.summaryFunction = glbMdlMetricSummaryFn,
-                        trainControl.allowParallel = glbMdlAllowParallel,
+                        trainControl.blockParallel = glbMdlSequential,
                         train.metric = glbMdlMetricSummary, 
                         train.maximize = glbMdlMetricMaximize,    
                         train.method = mdl_id_components$alg,
@@ -6046,7 +6084,7 @@ if (!all(is.na(glbObsNew[, glb_rsp_var]))) {
         # trainControl.repeats = 1,
         trainControl.classProbs = glb_is_classification,
         trainControl.summaryFunction = glbMdlMetricSummaryFn,
-        trainControl.allowParallel = glbMdlAllowParallel,
+        trainControl.blockParallel = glbMdlSequential,
         train.metric = glbMdlMetricSummary, 
         train.maximize = glbMdlMetricMaximize,    
         train.method = myparseMdlId(glbMdlSelId)$alg,
