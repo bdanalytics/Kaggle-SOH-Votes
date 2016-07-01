@@ -22,4 +22,6 @@ vignettes/*.pdf
 # my additions
 *.csv
 *.md
+*.RData
 *.Rproj
+*_syn.Rmd
